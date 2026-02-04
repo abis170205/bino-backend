@@ -1,21 +1,46 @@
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const connectDB = require("./config/db");
-
-connectDB();
 
 const app = express();
-app.use(cors({
-  origin: "*",
-  methods: ["GET", "POST"],
-}));
 
+/* =========================
+   🔑 CORS CONFIG (CRITICAL)
+   ========================= */
+app.use(
+  cors({
+    origin: "*", // allow requests from Netlify
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
+
+/* 🔑 HANDLE PREFLIGHT REQUESTS */
+app.options("*", cors());
+
+/* =========================
+   MIDDLEWARE
+   ========================= */
 app.use(express.json());
 
+/* =========================
+   ROUTES
+   ========================= */
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/contact", require("./routes/contactRoutes"));
 
-app.listen(process.env.PORT, () =>
-  console.log("Server running on port", process.env.PORT)
-);
+/* =========================
+   DEFAULT ROUTE (OPTIONAL)
+   ========================= */
+app.get("/", (req, res) => {
+  res.send("BinoTech Backend is running");
+});
+
+/* =========================
+   SERVER START
+   ========================= */
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
